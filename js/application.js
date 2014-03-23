@@ -270,7 +270,7 @@ function restart () {
 
       if (win === 0) {
         if (numNodes == 10) {
-          alert("You won!");
+          alert("Congratulations! You solved this puzzle. I'm looking for internships in 2014. Like what you see? Email me at jacopo.notarstefano [at] gmail.com");
         }
 
         nodes = initNodes(++numNodes);
