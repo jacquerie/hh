@@ -3,6 +3,10 @@ body {
   line-height: 1.5;
 }
 
+.container {
+  max-width: 600px;
+}
+
 .signature {
   text-align: center;
 }
