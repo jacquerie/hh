@@ -10,11 +10,16 @@ var svg = d3.select(".main")
 
 // Set up initial nodes.
 var nodes = [
-      { id: 0, degree: 2 },
-      { id: 1, degree: 2 },
-      { id: 2, degree: 2 },
-      { id: 3, degree: 2 },
-      { id: 4, degree: 2 }
+      { id: 0, targetDegree: 3, currentDegree: 0 },
+      { id: 1, targetDegree: 3, currentDegree: 0 },
+      { id: 2, targetDegree: 3, currentDegree: 0 },
+      { id: 3, targetDegree: 3, currentDegree: 0 },
+      { id: 4, targetDegree: 3, currentDegree: 0 },
+      { id: 5, targetDegree: 3, currentDegree: 0 },
+      { id: 6, targetDegree: 3, currentDegree: 0 },
+      { id: 7, targetDegree: 3, currentDegree: 0 },
+      { id: 8, targetDegree: 3, currentDegree: 0 },
+      { id: 9, targetDegree: 3, currentDegree: 0 }
     ],
     links = [];
 
@@ -104,14 +109,19 @@ function restart () {
 
   // Update existing nodes.
   circle.selectAll("circle")
+    .attr("r", function (d) { return 12 * Math.sqrt(d.targetDegree - d.currentDegree + 1); })
     .style("fill", function (d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); });
+
+  // Update existing labels.
+  circle.selectAll("text")
+    .text(function (d) { return d.targetDegree - d.currentDegree; });
 
   // Add new nodes.
   var g = circle.enter().append("svg:g");
 
   g.append("svg:circle")
     .attr("class", "node")
-    .attr("r", function (d) { return 12; })
+    .attr("r", function (d) { return 12 * Math.sqrt(d.targetDegree - d.currentDegree + 1); })
     .style("fill", function (d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style("stroke", function (d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .on("mouseover", function (d) {
@@ -172,10 +182,14 @@ function restart () {
       link = links.filter(function (l) {
         return (l.source === source && l.target === target);
       })[0];
-      
+
       if (!link) {
-        link = { source: source, target: target };
-        links.push(link);
+        if ((source.currentDegree < source.targetDegree) &&
+            (target.currentDegree < target.targetDegree)) {
+          source.currentDegree++; target.currentDegree++;
+          link = { source: source, target: target };
+          links.push(link);
+        }
       }
       
       // Select new link.
@@ -183,14 +197,14 @@ function restart () {
       selected_node = null;
       
       restart();
-    })
+    });
 
-  // Show node IDs.
+  // Add degree labels.
   g.append("svg:text")
     .attr("x", 0)
-    .attr("y", 4)
-    .attr("class", "id")
-    .text(function (d) { return d.id; });
+    .attr("y", 6)
+    .attr("class", "degree")
+    .text(function (d) { return d.targetDegree - d.currentDegree; });
 
   // Remove old nodes.
   circle.exit().remove();
@@ -230,7 +244,9 @@ function keydown () {
   switch (lastKeyDown) {
     case 8:  // backspace
     case 46: // delete
-      links.splice(links.indexOf(selected_link), 1);
+      var link = links.splice(links.indexOf(selected_link), 1)[0];
+      link.source.currentDegree--; link.target.currentDegree--;
+
       selected_link = null;
       restart();
       break;

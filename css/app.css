@@ -50,11 +50,11 @@ circle.node {
 }
 
 text {
-  font: 12px sans-serif;
+  font: 16px sans-serif;
   pointer-events: none;
 }
 
-text.id {
+text.degree {
   text-anchor: middle;
   font-weight: bold;
 }
