@@ -48,8 +48,6 @@ function havelHakimi (degrees) {
   if (numZero === newDegrees.length) {
     return true;
   } else {
-    console.log("bar");
-
     newDegrees.sort().reverse();
     max = newDegrees.shift();
   
