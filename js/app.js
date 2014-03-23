@@ -9,28 +9,96 @@ var svg = d3.select(".main")
   .attr("height", height);
 
 // Set up initial nodes.
-var nodes = [
-      { id: 0, targetDegree: 3, currentDegree: 0 },
-      { id: 1, targetDegree: 3, currentDegree: 0 },
-      { id: 2, targetDegree: 3, currentDegree: 0 },
-      { id: 3, targetDegree: 3, currentDegree: 0 },
-      { id: 4, targetDegree: 3, currentDegree: 0 },
-      { id: 5, targetDegree: 3, currentDegree: 0 },
-      { id: 6, targetDegree: 3, currentDegree: 0 },
-      { id: 7, targetDegree: 3, currentDegree: 0 },
-      { id: 8, targetDegree: 3, currentDegree: 0 },
-      { id: 9, targetDegree: 3, currentDegree: 0 }
-    ],
-    links = [];
+var numNodes = 2;
+    lastNodeId = 0;
+
+function initDegrees (numNodes) {
+  var i, degrees = [];
+
+  for (i = 0; i < numNodes; i++) {
+    degrees[i] = Math.floor(Math.random() * (numNodes - 1)) + 1;
+  }
+
+  return degrees;
+}
+
+function havelHakimi (degrees) {
+  var i, max, newDegrees = degrees.slice();
+
+  var numBig = newDegrees.filter(function (d) {
+    return d >= newDegrees.length;
+  }).length;
+
+  var numOdd = newDegrees.filter(function (d) {
+    return d % 2 === 1;
+  }).length;
+
+  var numNeg = newDegrees.filter(function (d) {
+    return d < 0;
+  }).length;
+
+  if ((numBig > 0) || (numOdd % 2 === 1) || (numNeg > 0)) {
+    return false;
+  }
+
+  var numZero = newDegrees.filter(function (d) {
+    d === 0;
+  }).length;
+
+  if (numZero === newDegrees.length) {
+    return true;
+  } else {
+    console.log("bar");
+
+    newDegrees.sort().reverse();
+    max = newDegrees.shift();
+  
+    for (i = 0; i < max; i++) {
+      newDegrees[i]--;
+    }
+  
+    return havelHakimi(newDegrees);
+  }
+}
+
+function initNodes (numNodes) {
+  var i, degrees, nodes = [];
+
+  degrees = initDegrees(numNodes);
+  while (!havelHakimi(degrees)) {
+    degrees = initDegrees(numNodes);
+  }
+
+  for (i = 0; i < numNodes; i++) {
+    nodes.push({
+      id: lastNodeId++,
+      targetDegree: degrees[i],
+      currentDegree: 0
+    });
+  }
+
+  return nodes;
+}
+
+function resetLinks () {
+  return [];
+}
+
+var nodes = initNodes(numNodes);
+    links = resetLinks();
 
 // Init D3 force layout.
-var force = d3.layout.force()
-  .nodes(nodes)
-  .links(links)
-  .size([width, height])
-  .linkDistance(150)
-  .charge(-500)
-  .on("tick", tick)
+function initForce () {
+  return d3.layout.force()
+           .nodes(nodes)
+           .links(links)
+           .size([width, height])
+           .linkDistance(150)
+           .charge(-500)
+           .on("tick", tick);
+}
+
+var force = initForce();
 
 // Line displayed when dragging the pointer.
 var drag_line = svg.append("svg:path")
@@ -195,7 +263,23 @@ function restart () {
       // Select new link.
       selected_link = link;
       selected_node = null;
-      
+
+      // Check win condition.
+      var win;
+      win = nodes.filter(function (n) {
+        return (n.currentDegree !== n.targetDegree);
+      }).length;
+
+      if (win === 0) {
+        if (numNodes == 10) {
+          alert("You won!");
+        }
+
+        nodes = initNodes(++numNodes);
+        links = resetLinks();
+        force = initForce();
+      }
+
       restart();
     });
 
