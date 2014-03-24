@@ -451,9 +451,7 @@ function keyup () {
 // App starts here.
 svg.on("mousemove", mousemove)
   .on("mouseup", mouseup)
-  .on("touchstart", touchToMouse)
   .on("touchmove", touchToMouse)
-  .on("touchend", touchToMouse);
 d3.select(window)
   .on("keydown", keydown)
   .on("keyup", keyup);
