@@ -120,37 +120,6 @@ function resetMouseVars () {
   mouseup_node = null;
 }
 
-// Transforms a touch event into a corresponding mouse event.
-// From: http://vetruvet.blogspot.it/2010/12/converting-single-touch-events-to-mouse.html
-function touchToMouse (event) {
-  if (event.touches.length > 1) return;
-  var touch = event.changedTouches[0],
-      type = "";
-
-  switch (event.type) {
-    case "touchstart":
-      type = "mousedown";
-      break;
-    case "touchmove":
-      type = "mousemove";
-      break;
-    case "touchend":
-      type = "mouseup";
-      break;
-    default:
-      return;
-  }
-
-  var simulatedEvent = document.createEvent("MouseEvent");
-  simulatedEvent.initMouseEvent(type, true, true, window, 1,
-                                touch.screenX, touch.screenY,
-                                touch.clientX, touch.clientY, false,
-                                false, false, false, 0, null);
-
-  touch.target.dispatchEvent(simulatedEvent);
-  event.preventDefault();
-}
-
 // Update force layout (called automatically every iteration).
 function tick () {
   path.attr("d", function (d) {
@@ -251,24 +220,6 @@ function restart () {
         
       restart();
     })
-    .on("touchend", function (d) {
-      mousedown_node = d;
-      selected_link = null;
-      
-      // Toggle selection of this node.
-      if (mousedown_node === selected_node) {
-        selected_node = null;
-      } else {
-        selected_node = mousedown_node;
-      }
-      
-      // Reposition drag line.
-      drag_line
-        .classed("hidden", false)
-        .attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + mousedown_node.x + "," + mousedown_node.y);
-        
-      restart();
-     })
     .on("mouseup", function (d) {
       if (!mousedown_node) return;
 
@@ -328,66 +279,7 @@ function restart () {
       }
 
       restart();
-    })
-    .on("touchend", function (d) {
-      if (!mousedown_node) return;
-
-      // Check for drag-to-self.
-      mouseup_node = d;
-      if (mouseup_node === mousedown_node) {
-        resetMouseVars();
-        return;
-      }
-      
-      // Unenlarge target node.
-      d3.select(this).attr("transform", "");
-
-      // Add link to graph. Ensure that source is always less than target so
-      // that we add each link only once.
-      var source, target;
-      if (mousedown_node.id < mouseup_node.id) {
-        source = mousedown_node;
-        target = mouseup_node;
-      } else {
-        source = mouseup_node;
-        target = mousedown_node;
-      }
-      
-      var link;
-      link = links.filter(function (l) {
-        return (l.source === source && l.target === target);
-      })[0];
-
-      if (!link) {
-        if ((source.currentDegree < source.targetDegree) &&
-            (target.currentDegree < target.targetDegree)) {
-          source.currentDegree++; target.currentDegree++;
-          link = { source: source, target: target };
-          links.push(link);
-        }
-      }
-      
-      // Select new link.
-      selected_link = link;
-      selected_node = null;
-
-      // Check win condition.
-      var win;
-      win = nodes.filter(function (n) {
-        return (n.currentDegree !== n.targetDegree);
-      }).length;
-
-      if (win === 0) {
-        if (numNodes == 10) {
-          alert("Congratulations! You solved this puzzle. I'm looking for internships in 2014. Like what you see? Email me at jacopo.notarstefano [at] gmail.com");
-        }
-
-        nodes = initNodes(++numNodes);
-        links = resetLinks();
-        force = initForce();
-      }
-    });
-
+  });
 
   // Add degree labels.
   g.append("svg:text")
@@ -451,7 +343,6 @@ function keyup () {
 // App starts here.
 svg.on("mousemove", mousemove)
   .on("mouseup", mouseup)
-  .on("touchmove", touchToMouse)
 d3.select(window)
   .on("keydown", keydown)
   .on("keyup", keyup);
