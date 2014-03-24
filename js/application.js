@@ -120,6 +120,36 @@ function resetMouseVars () {
   mouseup_node = null;
 }
 
+// Transforms a touch event into a corresponding mouse event.
+// From: http://stackoverflow.com/a/1781750/374865
+function touchHandler (event) {
+  var touches = event.changedTouches,
+      first = touches[0],
+      type = "";
+
+  switch (event.type) {
+    case "touchstart":
+      type = "mousedown";
+      break;
+    case "touchmove":
+      type = "mousemove";
+      break;
+    case "touchend":
+      type = "mouseup";
+      break;
+    default:
+      return;
+  }
+
+  var simulatedEvent = document.createEvent("MouseEvent");
+  simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                first.screenX, first.screenY,
+                                first.clientX, first.clientY, false,
+                                false, false, false, 0, null);
+
+  event.preventDefault();
+}
+
 // Update force layout (called automatically every iteration).
 function tick () {
   path.attr("d", function (d) {
@@ -343,7 +373,10 @@ function keyup () {
 // App starts here.
 svg.on("mousemove", mousemove)
   .on("mouseup", mouseup)
+  .on("touchstart", touchHandler)
+  .on("touchmove", touchHandler)
+  .on("touchend", touchHandler);
 d3.select(window)
   .on("keydown", keydown)
-  .on("keyup", keyup)
+  .on("keyup", keyup);
 restart();
