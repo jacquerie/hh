@@ -251,6 +251,24 @@ function restart () {
         
       restart();
     })
+    .on("touchend", function (d) {
+      mousedown_node = d;
+      selected_link = null;
+      
+      // Toggle selection of this node.
+      if (mousedown_node === selected_node) {
+        selected_node = null;
+      } else {
+        selected_node = mousedown_node;
+      }
+      
+      // Reposition drag line.
+      drag_line
+        .classed("hidden", false)
+        .attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + mousedown_node.x + "," + mousedown_node.y);
+        
+      restart();
+     })
     .on("mouseup", function (d) {
       if (!mousedown_node) return;
 
@@ -310,7 +328,66 @@ function restart () {
       }
 
       restart();
+    })
+    .on("touchend", function (d) {
+      if (!mousedown_node) return;
+
+      // Check for drag-to-self.
+      mouseup_node = d;
+      if (mouseup_node === mousedown_node) {
+        resetMouseVars();
+        return;
+      }
+      
+      // Unenlarge target node.
+      d3.select(this).attr("transform", "");
+
+      // Add link to graph. Ensure that source is always less than target so
+      // that we add each link only once.
+      var source, target;
+      if (mousedown_node.id < mouseup_node.id) {
+        source = mousedown_node;
+        target = mouseup_node;
+      } else {
+        source = mouseup_node;
+        target = mousedown_node;
+      }
+      
+      var link;
+      link = links.filter(function (l) {
+        return (l.source === source && l.target === target);
+      })[0];
+
+      if (!link) {
+        if ((source.currentDegree < source.targetDegree) &&
+            (target.currentDegree < target.targetDegree)) {
+          source.currentDegree++; target.currentDegree++;
+          link = { source: source, target: target };
+          links.push(link);
+        }
+      }
+      
+      // Select new link.
+      selected_link = link;
+      selected_node = null;
+
+      // Check win condition.
+      var win;
+      win = nodes.filter(function (n) {
+        return (n.currentDegree !== n.targetDegree);
+      }).length;
+
+      if (win === 0) {
+        if (numNodes == 10) {
+          alert("Congratulations! You solved this puzzle. I'm looking for internships in 2014. Like what you see? Email me at jacopo.notarstefano [at] gmail.com");
+        }
+
+        nodes = initNodes(++numNodes);
+        links = resetLinks();
+        force = initForce();
+      }
     });
+
 
   // Add degree labels.
   g.append("svg:text")
