@@ -7,20 +7,8 @@ var svg = d3.select("svg")
   .attr("width", width)
   .attr("height", height);
 
-// Set up initial nodes.
-var numNodes = 2;
-    lastNodeId = 0;
-
-function initDegrees (numNodes) {
-  var i, degrees = [];
-
-  for (i = 0; i < numNodes; i++) {
-    degrees[i] = Math.floor(Math.random() * (numNodes - 1)) + 1;
-  }
-
-  return degrees;
-}
-
+// An implementation of the Havel-Hakimi algorithm.
+// See: http://www.dcs.gla.ac.uk/~pat/af2009/mySlides/Havel-Hakimi.ppt
 function havelHakimi (degrees) {
   var i, max, newDegrees = degrees.slice();
 
@@ -49,14 +37,18 @@ function havelHakimi (degrees) {
   } else {
     newDegrees.sort().reverse();
     max = newDegrees.shift();
-  
+
     for (i = 0; i < max; i++) {
       newDegrees[i]--;
     }
-  
+
     return havelHakimi(newDegrees);
   }
 }
+
+// Set up initial nodes.
+var numNodes = 2;
+    lastNodeId = 0;
 
 function initNodes (numNodes) {
   var i, degrees, nodes = [];
@@ -75,6 +67,16 @@ function initNodes (numNodes) {
   }
 
   return nodes;
+}
+
+function initDegrees (numNodes) {
+  var i, degrees = [];
+
+  for (i = 0; i < numNodes; i++) {
+    degrees[i] = Math.floor(Math.random() * (numNodes - 1)) + 1;
+  }
+
+  return degrees;
 }
 
 function resetLinks () {
