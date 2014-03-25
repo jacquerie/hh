@@ -79,10 +79,29 @@ function initDegrees (numNodes) {
   return degrees;
 }
 
+function resetDegrees () {
+  var i;
+
+  for (i = 0; i < nodes.length; i++) {
+    nodes[i].currentDegree = 0;
+  }
+
+  return nodes;
+}
+
 function resetLinks () {
   return [];
 }
 
+function reset () {
+  force.stop();
+
+  nodes = resetDegrees();
+  links = resetLinks();
+  force = initForce();
+
+  restart();
+}
 var nodes = initNodes(numNodes);
     links = resetLinks();
 
@@ -347,4 +366,6 @@ svg.on("mousemove", mousemove)
 d3.select(window)
   .on("keydown", keydown)
   .on("keyup", keyup);
+d3.select(".controls button")
+  .on("click", reset);
 restart();
