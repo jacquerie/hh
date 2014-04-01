@@ -102,6 +102,7 @@ function reset () {
 
   restart();
 }
+
 var nodes = initNodes(numNodes);
     links = resetLinks();
 
