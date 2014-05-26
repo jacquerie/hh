@@ -47,7 +47,7 @@ function havelHakimi (degrees) {
 }
 
 // Set up initial nodes.
-var numNodes = 2;
+var numNodes = 2,
     lastNodeId = 0;
 
 function initNodes (numNodes) {
@@ -102,7 +102,7 @@ function reset () {
 
   restart();
 }
-var nodes = initNodes(numNodes);
+var nodes = initNodes(numNodes),
     links = resetLinks();
 
 // Init D3 force layout.
