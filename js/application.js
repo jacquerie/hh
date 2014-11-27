@@ -29,7 +29,7 @@ function havelHakimi (degrees) {
   }
 
   var numZero = newDegrees.filter(function (d) {
-    d === 0;
+    return d === 0;
   }).length;
 
   if (numZero === newDegrees.length) {
@@ -184,7 +184,7 @@ function restart () {
       }
 
       restart();
-    })
+    });
 
   // Remove old links.
   path.exit().remove();
@@ -327,7 +327,7 @@ function mouseup () {
   if (mousedown_node) {
     // Hide drag line.
     drag_line
-      .classed("hidden", true)
+      .classed("hidden", true);
   }
 
   resetMouseVars();
@@ -362,7 +362,7 @@ function keyup () {
 
 // App starts here.
 svg.on("mousemove", mousemove)
-  .on("mouseup", mouseup)
+  .on("mouseup", mouseup);
 d3.select(window)
   .on("keydown", keydown)
   .on("keyup", keyup);
