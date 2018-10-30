@@ -212,32 +212,32 @@ function restart () {
     .style("stroke", function (d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .on("mouseover", function (d) {
       if (!mousedown_node || d === mousedown_node) return;
-      
+
       // Enlarge target node.
       d3.select(this).attr("transform", "scale(1.1)");
     })
     .on("mouseout", function (d) {
       if (!mousedown_node || d === mousedown_node) return;
-      
+
       // Unenlarge target node.
       d3.select(this).attr("transform", "");
     })
     .on("mousedown", function (d) {
       mousedown_node = d;
       selected_link = null;
-      
+
       // Toggle selection of this node.
       if (mousedown_node === selected_node) {
         selected_node = null;
       } else {
         selected_node = mousedown_node;
       }
-      
+
       // Reposition drag line.
       drag_line
         .classed("hidden", false)
         .attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + mousedown_node.x + "," + mousedown_node.y);
-        
+
       restart();
     })
     .on("mouseup", function (d) {
@@ -249,7 +249,7 @@ function restart () {
         resetMouseVars();
         return;
       }
-      
+
       // Unenlarge target node.
       d3.select(this).attr("transform", "");
 
@@ -263,7 +263,7 @@ function restart () {
         source = mouseup_node;
         target = mousedown_node;
       }
-      
+
       var link;
       link = links.filter(function (l) {
         return (l.source === source && l.target === target);
@@ -277,7 +277,7 @@ function restart () {
           links.push(link);
         }
       }
-      
+
       // Select new link.
       selected_link = link;
       selected_node = null;
@@ -317,7 +317,7 @@ function restart () {
 
 function mousemove () {
   if (!mousedown_node) return;
-  
+
   // Update drag line.
   drag_line.attr("d", "M" + mousedown_node.x + "," + mousedown_node.y + "L" + d3.mouse(this)[0] + "," + d3.mouse(this)[1]);
   restart();
